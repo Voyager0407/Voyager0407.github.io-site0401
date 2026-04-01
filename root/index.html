@@ -1,1 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎪 惊喜盒子！</title>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:    #FF2D2D;
+      --yellow: #FFD600;
+      --blue:   #1A6FFF;
+      --green:  #00C94A;
+      --purple: #9B31FF;
+      --skin:   #FFCBA4;
+      --bg:     #1a0a2e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Fredoka One', cursive;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ── Stars background ── */
+    .stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle var(--d, 3s) ease-in-out infinite;
+      opacity: 0;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0; transform: scale(0.6); }
+      50%      { opacity: 0.9; transform: scale(1); }
+    }
+
+    /* ── Title ── */
+    .title {
+      position: relative; z-index: 10;
+      font-family: 'Boogaloo', cursive;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: var(--yellow);
+      text-shadow: 4px 4px 0 var(--red), 8px 8px 0 rgba(0,0,0,.3);
+      margin-bottom: 2rem;
+      letter-spacing: .05em;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* ── Stage ── */
+    .stage {
+      position: relative; z-index: 10;
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Clown assembly ── */
+    .clown-wrapper {
+      position: relative;
+      width: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: bottom center;
+      /* hidden below box lid initially */
+      clip-path: inset(100% 0 0 0);
+      transition: none;
+    }
+    .clown-wrapper.pop {
+      animation: springUp .7s cubic-bezier(.17,.89,.32,1.5) forwards;
+    }
+    @keyframes springUp {
+      0%   { clip-path: inset(100% 0 0 0); transform: scaleY(0.2) translateY(20px); }
+      60%  { clip-path: inset(0% 0 0 0);   transform: scaleY(1.08) translateY(-4px); }
+      80%  { transform: scaleY(0.95) translateY(2px); }
+      100% { clip-path: inset(0% 0 0 0);   transform: scaleY(1) translateY(0); }
+    }
+
+    /* Hat */
+    .hat {
+      width: 0; height: 0;
+      border-left: 30px solid transparent;
+      border-right: 30px solid transparent;
+      border-bottom: 55px solid var(--purple);
+      position: relative;
+      filter: drop-shadow(0 -2px 4px rgba(0,0,0,.4));
+    }
+    .hat::after {
+      content: '';
+      position: absolute;
+      bottom: -62px; left: -38px;
+      width: 76px; height: 14px;
+      background: var(--purple);
+      border-radius: 4px;
+    }
+    .hat-star {
+      position: absolute;
+      top: -55px; left: -10px;
+      font-size: 1.4rem;
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Face */
+    .face {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: var(--skin);
+      border: 4px solid #e8a070;
+      position: relative;
+      margin-top: 2px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.4);
+      overflow: visible;
+    }
+    /* Cheeks */
+    .face::before, .face::after {
+      content: '';
+      position: absolute;
+      width: 26px; height: 18px;
+      border-radius: 50%;
+      background: rgba(255,80,80,.55);
+      top: 55px;
+    }
+    .face::before { left: 5px; }
+    .face::after  { right: 5px; }
+
+    /* Eyes */
+    .eyes { position: absolute; top: 26px; left: 0; right: 0; display: flex; justify-content: space-around; padding: 0 16px; }
+    .eye {
+      width: 18px; height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      border: 3px solid #333;
+      position: relative;
+      overflow: hidden;
+    }
+    .pupil {
+      position: absolute;
+      width: 10px; height: 10px;
+      background: #111;
+      border-radius: 50%;
+      top: 5px; left: 4px;
+      animation: eyeMove 4s ease-in-out infinite;
+    }
+    @keyframes eyeMove {
+      0%,40%,100% { transform: translate(0,0); }
+      20%          { transform: translate(-2px,-2px); }
+      60%          { transform: translate(2px,1px); }
+      80%          { transform: translate(0,2px); }
+    }
+    .eye::after { /* lash */
+      content: '';
+      position: absolute;
+      top: -3px; left: 3px;
+      width: 10px; height: 4px;
+      background: #333;
+      border-radius: 2px;
+    }
+
+    /* Nose */
+    .nose {
+      position: absolute;
+      width: 22px; height: 22px;
+      background: var(--red);
+      border-radius: 50%;
+      top: 48px; left: 50%; transform: translateX(-50%);
+      box-shadow: 0 3px 8px rgba(0,0,0,.3);
+      animation: nosePulse 1.2s ease-in-out infinite;
+    }
+    @keyframes nosePulse {
+      0%,100% { transform: translateX(-50%) scale(1); }
+      50%      { transform: translateX(-50%) scale(1.12); }
+    }
+
+    /* Smile */
+    .smile {
+      position: absolute;
+      width: 58px; height: 30px;
+      border-bottom: 5px solid #c0392b;
+      border-radius: 0 0 50px 50px;
+      top: 58px; left: 50%; transform: translateX(-50%);
+    }
+    /* Teeth */
+    .smile::before {
+      content: '';
+      position: absolute;
+      width: 42px; height: 12px;
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      bottom: -2px; left: 8px;
+    }
+
+    /* Hair */
+    .hair {
+      position: absolute;
+      top: -6px; left: -14px; right: -14px;
+      display: flex; justify-content: space-between;
+    }
+    .hair-puff {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 4px #ffaaaa;
+    }
+
+    /* Ruff / collar */
+    .ruff {
+      display: flex; gap: 4px;
+      margin-top: -6px; z-index: 2;
+    }
+    .ruff-petal {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--yellow);
+      border: 3px solid var(--red);
+      box-shadow: 0 2px 6px rgba(0,0,0,.2);
+    }
+    .ruff-petal:nth-child(even) { background: var(--red); border-color: var(--yellow); }
+
+    /* Body */
+    .body {
+      width: 80px;
+      background: linear-gradient(135deg, var(--blue) 50%, var(--red) 50%);
+      border-radius: 8px 8px 0 0;
+      height: 40px;
+      margin-top: -2px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .button-row { display: flex; gap: 8px; }
+    .btn-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 0 0 6px rgba(255,214,0,.8);
+    }
+
+    /* Spring */
+    .spring {
+      width: 20px;
+      height: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        #bbb 0px, #bbb 3px,
+        #888 3px, #888 6px
+      );
+      border-radius: 2px;
+      transition: height .5s ease;
+      margin-top: 0;
+    }
+    .spring.extended { height: 40px; }
+
+    /* ── Box ── */
+    .box-group {
+      position: relative;
+      width: 180px;
+    }
+
+    .lid {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 28px;
+      background: var(--red);
+      border: 4px solid #8b0000;
+      border-radius: 8px 8px 0 0;
+      z-index: 20;
+      transform-origin: left center;
+      transition: transform .6s cubic-bezier(.4,1.6,.6,1);
+    }
+    .lid.open { transform: rotate(-140deg) scaleX(1); }
+    .lid::before { /* stripe */
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0, transparent 18px,
+        rgba(0,0,0,.15) 18px, rgba(0,0,0,.15) 22px
+      );
+      border-radius: inherit;
+    }
+    .lid-knob {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: var(--yellow);
+      border-radius: 50%;
+      border: 3px solid #c8960a;
+      top: 50%; right: 12px;
+      transform: translateY(-50%);
+    }
+
+    .box-body {
+      width: 100%;
+      background: linear-gradient(160deg, #e8c700 0%, #f5a200 100%);
+      border: 4px solid #a06800;
+      border-radius: 4px;
+      height: 130px;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    /* polka-dot pattern */
+    .box-body::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,.25) 5px, transparent 5px);
+      background-size: 24px 24px;
+    }
+
+    /* ── Crank ── */
+    .crank-wrap {
+      position: absolute;
+      right: -28px; top: 50%;
+      transform: translateY(-50%);
+    }
+    .crank-arm {
+      width: 24px; height: 8px;
+      background: #aaa;
+      border-radius: 4px;
+      position: relative;
+      animation: crankSpin 1s linear infinite;
+      transform-origin: left center;
+    }
+    .crank-arm.stop { animation-play-state: paused; }
+    @keyframes crankSpin { to { transform: rotate(360deg); } }
+    .crank-ball {
+      position: absolute;
+      right: -6px; top: -6px;
+      width: 18px; height: 18px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 3px solid #800;
+    }
+
+    /* ── Hint ── */
+    .hint {
+      position: relative; z-index: 10;
+      margin-top: 2rem;
+      color: rgba(255,255,255,.55);
+      font-family: 'Boogaloo', cursive;
+      font-size: 1.1rem;
+      letter-spacing: .1em;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: .2; }
+    }
+    .hint.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Confetti ── */
+    .confetti-container {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 100;
+      overflow: hidden;
+    }
+    .confetto {
+      position: absolute;
+      width: var(--w, 10px);
+      height: var(--h, 14px);
+      background: var(--c, red);
+      border-radius: var(--r, 2px);
+      top: -20px;
+      left: var(--x, 50%);
+      opacity: 0;
+      animation: fallDown var(--dur, 2s) ease-in var(--delay, 0s) forwards;
+    }
+    @keyframes fallDown {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scaleX(1); }
+      100% { opacity: 0; transform: translateY(110vh) rotate(var(--rot, 540deg)) scaleX(var(--sx, -1)); }
+    }
+
+    /* ── Reset button ── */
+    .reset-btn {
+      position: relative; z-index: 10;
+      margin-top: 2.5rem;
+      padding: .6rem 2rem;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      background: var(--yellow);
+      color: #1a0a2e;
+      border: none; border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #a06800, 0 8px 16px rgba(0,0,0,.3);
+      transform: translateY(0);
+      transition: transform .1s, box-shadow .1s;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s, transform .1s, box-shadow .1s;
+    }
+    .reset-btn.visible {
+      opacity: 1; pointer-events: auto;
+    }
+    .reset-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #a06800, 0 4px 8px rgba(0,0,0,.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stars -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Title -->
+  <div class="title">🎪 惊喜盒子 🎪</div>
+
+  <!-- Stage -->
+  <div class="stage" id="stage">
+
+    <!-- Clown (initially hidden) -->
+    <div class="clown-wrapper" id="clown">
+      <div class="hat">
+        <div class="hat-star">⭐</div>
+      </div>
+      <div class="face">
+        <div class="hair">
+          <div class="hair-puff"></div>
+          <div class="hair-puff"></div>
+        </div>
+        <div class="eyes">
+          <div class="eye"><div class="pupil"></div></div>
+          <div class="eye"><div class="pupil"></div></div>
+        </div>
+        <div class="nose"></div>
+        <div class="smile"></div>
+      </div>
+      <div class="ruff">
+        <div class="ruff-petal"></div>
+        <div class="ruff-petal"></div>
+        <div class="ruff-petal"></div>
+        <div class="ruff-petal"></div>
+        <div class="ruff-petal"></div>
+      </div>
+      <div class="body">
+        <div class="button-row">
+          <div class="btn-dot"></div>
+          <div class="btn-dot"></div>
+          <div class="btn-dot"></div>
+        </div>
+      </div>
+      <div class="spring" id="spring"></div>
+    </div>
+
+    <!-- Box -->
+    <div class="box-group">
+      <div class="lid" id="lid">
+        <div class="lid-knob"></div>
+      </div>
+      <div class="box-body">
+        <!-- crank -->
+        <div class="crank-wrap">
+          <div class="crank-arm" id="crank"><div class="crank-ball"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hint" id="hint">点击任意处打开盒子 👆</div>
+
+  <!-- Confetti container -->
+  <div class="confetti-container" id="confetti"></div>
+
+  <!-- Reset -->
+  <button class="reset-btn" id="resetBtn" onclick="reset()">🔄 再来一次！</button>
+
+<script>
+  /* ── Stars ── */
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${(Math.random()*3+2).toFixed(1)}s;
+      animation-delay:${(Math.random()*4).toFixed(1)}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  /* ── State ── */
+  let popped = false;
+
+  /* ── Pop logic ── */
+  document.body.addEventListener('click', function() {
+    if (popped) return;
+    popped = true;
+
+    document.getElementById('hint').classList.add('hidden');
+    document.getElementById('crank').classList.add('stop');
+
+    // 1. Open lid
+    setTimeout(() => {
+      document.getElementById('lid').classList.add('open');
+    }, 80);
+
+    // 2. Extend spring
+    setTimeout(() => {
+      document.getElementById('spring').classList.add('extended');
+    }, 300);
+
+    // 3. Pop clown
+    setTimeout(() => {
+      const cw = document.getElementById('clown');
+      cw.classList.add('pop');
+    }, 500);
+
+    // 4. Confetti
+    setTimeout(() => {
+      spawnConfetti();
+      document.getElementById('resetBtn').classList.add('visible');
+    }, 900);
+  });
+
+  /* ── Confetti ── */
+  const colors = ['#FF2D2D','#FFD600','#1A6FFF','#00C94A','#9B31FF','#FF8C00','#FF69B4'];
+  function spawnConfetti() {
+    const container = document.getElementById('confetti');
+    container.innerHTML = '';
+    for (let i = 0; i < 120; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetto';
+      const isCircle = Math.random() > .6;
+      c.style.cssText = `
+        --c:${colors[Math.floor(Math.random()*colors.length)]};
+        --x:${Math.random()*100}%;
+        --w:${Math.random()*10+6}px;
+        --h:${isCircle ? Math.random()*10+6 : Math.random()*16+8}px;
+        --r:${isCircle ? '50%' : '2px'};
+        --dur:${(Math.random()*2+1.5).toFixed(2)}s;
+        --delay:${(Math.random()*1.2).toFixed(2)}s;
+        --rot:${Math.random()>0.5?'':'-'}${Math.floor(Math.random()*720+180)}deg;
+        --sx:${Math.random()>0.5?1:-1};
+      `;
+      container.appendChild(c);
+    }
+  }
+
+  /* ── Reset ── */
+  function reset() {
+    popped = false;
+
+    document.getElementById('lid').classList.remove('open');
+    document.getElementById('spring').classList.remove('extended');
+
+    const cw = document.getElementById('clown');
+    cw.classList.remove('pop');
+    // force repaint
+    void cw.offsetWidth;
+
+    document.getElementById('crank').classList.remove('stop');
+    document.getElementById('confetti').innerHTML = '';
+    document.getElementById('resetBtn').classList.remove('visible');
+    document.getElementById('hint').classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
 
